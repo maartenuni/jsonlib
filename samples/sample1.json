@@ -1,0 +1,25 @@
+{
+    "category": "tracker",
+    "statuscode": 200,
+    "boolean": true,
+    "boolean2": false,
+    "nothing": null,
+    "lexical error": {"":[]},
+    "array" : [ 123, 409, -1],
+    "values": {
+        "frame" : {
+            "timestamp": "",
+            "time": 123454,
+            "fix": true,  
+            "state": 0,  
+            "raw": {    
+                "x": 1,
+                "y": 098
+            },
+            "avg": {   
+                "x": 836,
+                "y": 109 
+            }
+        }
+    }
+}
