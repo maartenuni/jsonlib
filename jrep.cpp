@@ -146,6 +146,11 @@ JString& JString::operator=(const string& str)
     return *this;
 }
 
+const std::string& JString::get_value() const
+{
+    return my_value;
+}
+
 string JString::representation() const
 {
     return "\"" + my_value + "\"";
@@ -306,7 +311,7 @@ j_string* j_string_create(){
     j_string* ret = NULL;
     try {
         JStringPtr* retptr;
-        retptr = new std::shared_ptr<JString>();
+        retptr = new std::shared_ptr<JString>(new JString);
         ret = (j_string*) retptr;
     } catch (...) {
     }
@@ -345,6 +350,17 @@ j_number* j_number_create(double number)
         JNumberPtr* ptr = new std::shared_ptr<JNumber>(new JNumber(number));
         ret = (j_number*) ptr;
     } catch(...){
+    }
+    return ret;
+}
+
+const char* j_string_get_value(j_string* str) {
+    const char* ret = NULL;
+    try {
+        JStringPtr* ptr = (JStringPtr*) str;
+        const string& s = (*ptr)->get_value();
+        ret = s.c_str();
+    } catch (...) {
     }
     return ret;
 }

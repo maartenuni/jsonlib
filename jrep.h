@@ -98,6 +98,8 @@ class JString : public JValue {
 
         JString& operator= (const std::string& rhs);
 
+        const std::string& get_value()const;
+
     private:
 
         std::string my_value;

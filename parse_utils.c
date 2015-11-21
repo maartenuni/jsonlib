@@ -29,6 +29,18 @@ node* list_push_back(node* list, void* data)
     return n;
 }
 
+node* list_reverse(node* root)
+{
+    node* new_root = NULL;
+    while (root) {
+        node* next = root->next;
+        root->next = new_root;
+        new_root = root;
+        root = next;
+    }
+    return new_root;
+}
+
 void list_destroy(node* n, void (*free_func)(void* data)) {
     while(n) {
         node* temp = n;
