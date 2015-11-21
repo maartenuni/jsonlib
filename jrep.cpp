@@ -11,7 +11,7 @@ using std::vector;
 using std::endl;
 
 JValue::JValue(jtype t)
-    : my_type(t)
+    : my_type(t), my_depth(0)
 {
 }
 
