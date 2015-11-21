@@ -40,6 +40,7 @@ void yyerror(const char*);
 
 start:
     | object            {
+                            j_val_fix_depth((j_val*) $1, 0);
                             char* rep = j_val_representation((j_val*)$1);
                             fprintf(stdout, "%s\n", rep);
                             free(rep);

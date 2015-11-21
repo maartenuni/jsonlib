@@ -24,6 +24,11 @@ void JValue::set_depth(int depth)
     my_depth = depth;
 }
 
+void JValue::fix_depth(int depth)
+{
+    set_depth(depth);
+}
+
 int JValue::get_depth() const
 {
     return my_depth;
@@ -52,6 +57,12 @@ JPtr JObject::get_value(const string& key) const
     if (it == my_pairs.end())
         throw NoSuchKeyError(key);
     return it->second;
+}
+
+void JObject::fix_depth(int depth) {
+    JValue::fix_depth(depth);
+    for (auto& pair : my_pairs)
+        pair.second->fix_depth((depth + 1));
 }
 
 std::string JObject::representation() const
@@ -109,6 +120,13 @@ vector<JPtr>::size_type JArray::size()
 JPtr JArray::get_value(vector<JPtr>::size_type index) const
 {
     return my_values[index];
+}
+
+void JArray::fix_depth(int depth)
+{
+    JValue::fix_depth(depth);
+    for (auto& value : my_values)
+        value->set_depth(depth +1);
 }
 
 string JArray::representation() const
@@ -318,6 +336,11 @@ j_val* j_array_get_value(j_array* arr, unsigned i) {
     } catch(...) {
     }
     return ret;
+}
+
+void j_val_fix_depth(j_val* val, int depth){
+    JPtr* ptr = (JPtr*) val;
+    (*ptr)->fix_depth(depth);
 }
 
 unsigned j_array_size(j_array* arr) {

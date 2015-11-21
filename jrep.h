@@ -20,10 +20,40 @@ class JValue{
 
     public:
         
+        /**
+         * Get the represtation of the json value of this value.
+         *
+         * @return the string that is the representation of this object.
+         */
         virtual std::string representation() const = 0;
+
+        /**
+         * Querry the json type of this value.
+         *
+         * @return the type of json value.
+         */
         jtype get_type()const;
+
+        /**
+         * get the depth of this value.
+         *
+         * @return the depth of this object.
+         */
         int get_depth() const;
+
+        /**
+         * Sets the depth of this object.
+         *
+         * @param depth, the new depth of this value
+         */
+
         void set_depth(int depth = 0);
+
+        /**
+         * Recursively fix depth setting in this value all possible values below this one
+         * also will be fixed.
+         */
+        virtual void fix_depth(int depth);
 
     protected:
 
@@ -54,9 +84,30 @@ class JObject : public JValue {
         
         virtual std::string representation() const;
 
+        /**
+         * Add a new key and value to the JObject. If the key already
+         * exists, the key is overwritten without questions asked.
+         *
+         * @param key a new (or existing) key to put a new value on
+         * @param value a new json value that is associated with key.
+         */
         void add_value(const std::string& key, JPtr value);
 
+        /**
+         * Get the value for the key given.
+         *
+         * @param key a key if key doesn't exist a JObjec::NoSuchKey is thrown
+         * @return a smart pointer to JValue
+         */
         JPtr get_value(const std::string& key) const;
+
+        /**
+         * calls set_depth on *this and calls fix_depth(depth + 1) on
+         * all contained values.
+         *
+         * @param depth the depth of this value.
+         */
+        void fix_depth(int depth);
 
     private :
 
@@ -74,11 +125,39 @@ class JArray : public JValue {
 
         virtual std::string representation() const;
 
-        void add_value(JPtr);
+        /**
+         * Adds one value to the contained array. This effectively
+         * increases the size with one.
+         *
+         * @param value A new JValue derived value. Make sure that you
+         * don't embedd an array into itself, this would lead to infinite
+         * recursion when calling represtation() 
+         */
+        void add_value(JPtr value);
 
+        /**
+         * Obtain the value at the given index.
+         *
+         * @param index the index within the array must be smaller then size().
+         * @return the a smart pointer to JValue contained at index.
+         */
         JPtr get_value(std::vector<JPtr>::size_type index)const;
 
+        /**
+         * Obtain the size of the array.
+         *
+         * @return the number of JValue s contained.
+         */
         std::vector<JPtr>::size_type size();
+
+        /**
+         * Sets the depth of this itemt to depth and all contained values
+         * to depth + 1.
+         *
+         * @param depth the depth where the array is nested inside the JSON
+         * representation.
+         */
+        void fix_depth(int depth);
 
     private:
 
@@ -178,6 +257,7 @@ extern "C" {
 typedef struct j_val j_val;
 char*   j_val_representation(j_val* value);
 void j_val_destroy(j_val* value);
+void j_val_fix_depth(j_val* val, int i);
 jtype   j_val_get_type(j_val* value);
 
 typedef struct j_object j_object;
