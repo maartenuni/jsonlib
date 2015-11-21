@@ -41,7 +41,7 @@ void yyerror(const char*);
 start:
     | object            {
                             fprintf(stdout, "%s\n", j_val_representation((j_val*)$1) );
-                            j_val_destroy(*$1);
+                            j_val_destroy((j_val*)*$1);
                         }
     ;
 
