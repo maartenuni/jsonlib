@@ -40,7 +40,9 @@ void yyerror(const char*);
 
 start:
     | object            {
-                            fprintf(stdout, "%s\n", j_val_representation((j_val*)$1) );
+                            char* rep = j_val_representation((j_val*)$1);
+                            fprintf(stdout, "%s\n", rep);
+                            free(rep);
                             j_val_destroy((j_val*)$1);
                         }
     ;
@@ -61,9 +63,11 @@ object: '{'   '}'       {
                                 j_string* s = p->string;
                                 j_val* val = p->value;
                                 j_object_add_value($$, j_string_get_value(s), val);
+                                j_string_destroy(s);
+                                j_val_destroy(val);
                                 n = n->next;
                             } while (n);
-                            list_destroy(head, (list_data_free_func) j_val_destroy);
+                            list_destroy(head, free);
                         }
     ;
 

@@ -219,8 +219,27 @@ void JParser::input(const std::string& input) {
 }
 
 void j_val_destroy(j_val* val) {
-    JPtr* ptr = (JPtr*) val;
-    delete ptr;
+    jtype t = j_val_get_type(val);
+    switch(t) {
+        case STRING:
+            j_string_destroy((j_string*) val);
+            break;
+        case NUMBER:
+            j_number_destroy((j_number*) val);
+            break;
+        case OBJECT:
+            j_object_destroy((j_object*) val);
+            break;
+        case ARRAY:
+            j_array_destroy((j_array*) val);
+            break;
+        case BOOL:
+            j_bool_destroy((j_bool*) val);
+            break;
+        case NULL_TYPE:
+            j_null_destroy((j_null*) val);
+            break;
+    }
 }
 
 char* j_val_representation(j_val* val) {
