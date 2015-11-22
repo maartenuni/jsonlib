@@ -4,9 +4,20 @@
 #include "jrep.h"
 #include "parse_utils.h"
 
-void yyerror(const char*);
+#ifdef __cplusplus
+extern "C"{
+#endif
+
+void yyerror(j_val**, const char*);
+int yyparse(j_val** parse_result);
+
+#ifdef __cplusplus
+}
+#endif
+
 %}
 
+%parse-param {j_val** parse_result}
 
 %union {
     j_val*              val;
@@ -40,23 +51,20 @@ void yyerror(const char*);
 
 start:
     | object            {
-                            j_val_fix_depth((j_val*) $1, 0);
-                            char* rep = j_val_representation((j_val*)$1);
-                            fprintf(stdout, "%s\n", rep);
-                            free(rep);
-                            j_val_destroy((j_val*)$1);
+                            j_val* output = $1;
+                            *parse_result = output;
                         }
     ;
 
 object: '{'   '}'       {
                             $$ = j_object_create();
                             if (!$$)
-                                yyerror("out of mem");
+                                yyerror(NULL, "out of mem");
                         }
     |   '{' members '}' {
                             $$ = j_object_create();
                             if (!$$)
-                                yyerror("out of mem");
+                                yyerror(NULL, "out of mem");
                             node* head = $2;
                             node* n = head; 
                             do {
@@ -133,11 +141,12 @@ number : TOK_NUM    {
 
 %%
 
-int main() {
-    yyparse();
-    return 0;
+int parser_parse(j_val** value)
+{
+    return yyparse(value);
 }
 
-void yyerror(const char* error) {
+void yyerror(j_val** unused, const char* error) {
+    (void) unused;
     fprintf(stderr, "Unable to parse input: %s\n", error);
 }

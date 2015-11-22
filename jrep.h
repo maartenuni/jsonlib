@@ -235,23 +235,70 @@ class JNull : public JValue {
 
 typedef std::shared_ptr<JNull> JNullPtr;
 
+/**
+ * \brief Parses jsons string buffers.
+ *
+ * An instance of JParser can be given string buffers.
+ * These buffers will be presented to the lexer, so
+ * that the parser will get presented with the input
+ * from the supplied buffers.
+ */
 class JParser {
 
     public:
         
-        void input(const std::string& input);
+        /**
+         * Copy the string into the lexer.
+         *
+         * @param input the input string for the lexer.
+         */
+        void scan_string(const std::string& input);
+        
+        /**
+         * Copy the string into the lexer.
+         *
+         * @param input the input string for the lexer.
+         * @param len the length of the string that
+         * should be fed to the lexer
+         */
+        void scan_bytes(const std::string& input, int len);
+        
+        /**
+         * \brief Give a memory buffer to the lexer
+         *
+         * Give a buffer to the lexer from all functions this is the
+         * most efficient method, since scanning than occurs in place.
+         * However, make sure that the buffer ends with two null bytes.
+         *
+         * @param input the input string for the lexer.
+         * @param len the length of the string that
+         * should be fed to the lexer
+         */
+        void scan_buffer(char* buf, size_t size);
 
-        JPtr parse();
-
-    private:
-
-        std::deque<char> my_input;
+        /**
+         * \brief parses the input or standard input (stdin).
+         * 
+         * This method parses the input. Will read from standard input if
+         * none of the scan_string, -buffer or -bytes methods has been called.
+         *
+         * @param JPtr& output JPtr will be initialized with the parsed input.
+         * @return 0 = succes, 1 = some kind of syntax error and 2 = out of memory
+         */
+        int parse(JPtr& output);
 };
 
 #endif //__cplusplus
 
 #ifdef __cplusplus
 extern "C" {
+#endif
+
+#ifdef INSIDE_LEXER
+    // These functions will be defined in the third section of lexer.l
+    void lexer_scan_string(const char* input);
+    void lexer_scan_bytes(const char* bytes, int length);
+    void lexer_scan_buffer(char* buffer, size_t length);
 #endif
 
 typedef struct j_val j_val;

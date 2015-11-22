@@ -1,4 +1,9 @@
+
+#define INSIDE_LEXER //include the interface to the buffer management
+#define INSIDE_PARSER//include the interface to yyparse
 #include "jrep.h"
+#undef INSIDE_PARSER
+#undef INSIDE_LEXER 
 
 #include <sstream>
 #include <cstring>
@@ -9,6 +14,10 @@ using std::map;
 using std::deque;
 using std::vector;
 using std::endl;
+
+extern "C" {
+    int yyparse(j_val** parse_result);
+}
 
 JValue::JValue(jtype t)
     : my_type(t), my_depth(0)
@@ -231,9 +240,31 @@ string JNull::representation() const
     return "null";
 }
 
-void JParser::input(const std::string& input) {
-    for (auto& c : input)
-        my_input.push_back(c);
+void JParser::scan_string(const std::string& input) {
+    lexer_scan_string(input.c_str());
+}
+
+void JParser::scan_bytes(const std::string& input, int length)
+{
+    lexer_scan_bytes(input.c_str(), length);
+}
+
+void JParser::scan_buffer(char* buffer, size_t size)
+{
+    lexer_scan_buffer(buffer, size);
+}
+
+
+int JParser::parse(JPtr& output)
+{
+    j_val* out = NULL;
+    int retval = yyparse(&out);
+    if (retval == 0){
+        JPtr* temp = (JPtr*) out;
+        output = *temp;
+        j_val_destroy(out);
+    }
+    return retval;
 }
 
 void j_val_destroy(j_val* val) {
@@ -259,6 +290,8 @@ void j_val_destroy(j_val* val) {
             break;
     }
 }
+
+
 
 char* j_val_representation(j_val* val) {
     JPtr* ptr = (JPtr*) val;

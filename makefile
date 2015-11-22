@@ -6,14 +6,26 @@ CFLAGS:=$(CFLAGS) -Wall -Wextra
 
 C_SRC=parse_utils.c lex.yy.c parser.tab.c
 C_OBJ=parse_utils.o lex.yy.o parser.tab.o
+CXX_SRC=jrep.cpp
+CXX_OBJ=jrep.o
+C_TEST_SRC=c_test.c
+C_TEST_OBJ=c_test.o
+CXX_TEST_SRC=cpp_test.cpp
+CXX_TEST_OBJ=cpp_test.o
 
-all:$(PROG)
+all:$(C_OBJ) $(CXX_OBJ)
 
-$(PROG): jrep.o $(C_OBJ)
-	$(CC) $(CCFLAGS) -o $@ $^ -lstdc++
+tests: cpp_test
+
+c_test:
+
+cpp_test:cpp_test.o $(C_OBJ) $(CXX_OBJ)
+	$(CXX) $(CXXFLAGS) -o $@ $<  $(C_OBJ) $(CXX_OBJ)
+
+cpp_test.o:
 
 C_OBJ:$(C_SRC)
-	$(CC) $(CCFLAGS) -c $@ $<
+	$(CC) $(CCFLAGS) -c $@ $^
 
 jrep.o: jrep.cpp jrep.h
 	$(CXX) -c $(CXXFLAGS) jrep.cpp
@@ -29,4 +41,8 @@ parser.tab.c:parser.y
 clean:
 	$(RM) $(C_OBJ)
 	$(RM) jrep.o
-	$(RM) lex.yy.h lex.yy.c 
+	$(RM) lex.yy.h lex.yy.c
+	$(RM) parser.tab.c parser.tab.h parser.output
+	$(RM) $(CXX_TEST_OBJ)
+	$(RM) $(C_TEST_OBJ)
+	$(RM) cpp_test c_test
