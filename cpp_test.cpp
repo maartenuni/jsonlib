@@ -22,8 +22,8 @@ void parse_files(int argc, char** argv) {
         ifstream stream(argv[i]);
         int ssize = get_stream_size(stream);
         buf = new char[ssize + 2];
+        buf[ssize] = '\0';
         buf[ssize+1] = '\0';
-        buf[ssize+2] = '\0';
         stream.read(buf, ssize);
         //cout << buf << endl;
         parser.scan_string(buf);
