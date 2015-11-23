@@ -27,7 +27,7 @@ NO_STR_CHAR             [\\/"\b\f\n\r\t]
                                     yylval.flt = atof(yytext);
                                     return  TOK_NUM;
                                 }
-\"(\\.|[^\\/"\b\f\n\r\t])*\"    {
+\"(\\.|[^\\"\b\f\n\r\t])*\"     {
                                     char* temp;
                                     yylval.str = j_string_create();
                                     /*remove quotes from match*/
