@@ -1,6 +1,6 @@
 
 
-PROG=test
+STATIC_LIB=libjrep.a
 CXXFLAGS:=$(CXXFLAGS) -std=c++0x -Wall -Wextra
 CFLAGS:=$(CFLAGS) -Wall -Wextra
 
@@ -13,14 +13,19 @@ C_TEST_OBJ=c_test.o
 CXX_TEST_SRC=cpp_test.cpp
 CXX_TEST_OBJ=cpp_test.o
 
-all:$(C_OBJ) $(CXX_OBJ)
+all:lib
+
+lib: $(STATIC_LIB)
+
+$(STATIC_LIB): $(C_OBJ) $(CXX_OBJ)
+	$(AR) -cvq $@ $(C_OBJ) $(CXX_OBJ)
 
 tests: cpp_test
 
 c_test:
 
-cpp_test:cpp_test.o $(C_OBJ) $(CXX_OBJ)
-	$(CXX) $(CXXFLAGS) -o $@ $<  $(C_OBJ) $(CXX_OBJ)
+cpp_test:cpp_test.o $(STATIC_LIB)
+	$(CXX) $(CXXFLAGS) -o $@ $< $(STATIC_LIB)  # $(C_OBJ) $(CXX_OBJ)
 
 cpp_test.o:
 
@@ -45,4 +50,5 @@ clean:
 	$(RM) parser.tab.c parser.tab.h parser.output
 	$(RM) $(CXX_TEST_OBJ)
 	$(RM) $(C_TEST_OBJ)
+	$(RM) $(STATIC_LIB)
 	$(RM) cpp_test c_test
