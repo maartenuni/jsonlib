@@ -39,11 +39,22 @@ void parse_files(int argc, char** argv) {
     }
 }
 
+void parse_stdin() {
+
+        JParser parser;
+        JPtr jrep;
+        int ret = parser.parse(jrep);
+        if (ret == 0){
+            jrep->fix_depth(0);
+            cout << jrep->representation() << endl;
+        }
+}
+
 int main(int argc, char** argv) {
     if (argc > 1) {
         parse_files(argc, argv);
     } else {
-        //parse_stdin();
+        parse_stdin();
     }
     return 0;
 }
