@@ -50,7 +50,7 @@ int yyparse(j_val** parse_result);
 %%
 
 start:
-    | object            {
+    | value             {
                             j_val* output = $1;
                             *parse_result = output;
                         }
