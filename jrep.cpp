@@ -135,7 +135,7 @@ void JArray::fix_depth(int depth)
 {
     JValue::fix_depth(depth);
     for (auto& value : my_values)
-        value->set_depth(depth +1);
+        value->fix_depth(depth +1);
 }
 
 string JArray::representation() const
