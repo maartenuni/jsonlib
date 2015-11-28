@@ -230,6 +230,11 @@ string JBool::representation() const
         return "false";
 }
 
+bool JBool::get_value()const
+{
+    return my_value;
+}
+
 JNull::JNull()
     :JValue(NULL_TYPE)
 {
@@ -381,7 +386,6 @@ unsigned j_array_size(j_array* arr) {
     return (*ptr)->size();
 }
 
-
 j_string* j_string_create(){
     j_string* ret = NULL;
     try {
@@ -418,17 +422,6 @@ j_string* j_string_assign(j_string* str, const char* value)
     return str;
 }
 
-j_number* j_number_create(double number)
-{
-    j_number* ret = NULL;
-    try {
-        JNumberPtr* ptr = new std::shared_ptr<JNumber>(new JNumber(number));
-        ret = (j_number*) ptr;
-    } catch(...){
-    }
-    return ret;
-}
-
 const char* j_string_get_value(j_string* str) {
     const char* ret = NULL;
     try {
@@ -436,6 +429,17 @@ const char* j_string_get_value(j_string* str) {
         const string& s = (*ptr)->get_value();
         ret = s.c_str();
     } catch (...) {
+    }
+    return ret;
+}
+
+j_number* j_number_create(double number)
+{
+    j_number* ret = NULL;
+    try {
+        JNumberPtr* ptr = new std::shared_ptr<JNumber>(new JNumber(number));
+        ret = (j_number*) ptr;
+    } catch(...){
     }
     return ret;
 }
@@ -499,6 +503,12 @@ j_bool* j_bool_assign(j_bool* b, int value)
     } catch(...) {
     }
     return ret;
+}
+
+int j_bool_get_value(j_bool* b)
+{
+    JBoolPtr* ptr = (JBoolPtr*) b;
+    return (*ptr)->get_value();
 }
 
 j_null* j_null_create() {

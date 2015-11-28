@@ -216,6 +216,8 @@ class JBool : public JValue {
 
         JBool& operator=(bool value);
 
+        bool get_value()const;
+
     private:
 
         bool my_value;
@@ -338,6 +340,7 @@ j_bool* j_bool_create();
 j_bool* j_bool_create_bool(int val);
 void j_bool_destroy(j_bool* b);
 j_bool* j_bool_assign(j_bool* b, int value);
+int j_bool_get_value(j_bool* b);
 
 typedef struct j_null j_null;
 j_null* j_null_create();
