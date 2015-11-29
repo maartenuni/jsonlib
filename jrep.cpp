@@ -17,6 +17,7 @@ using std::endl;
 
 extern "C" {
     int yyparse(j_val** parse_result);
+    void lexer_destroy_buffer();
 }
 
 JValue::JValue(jtype t)
@@ -268,7 +269,9 @@ int JParser::parse(JPtr& output)
         JPtr* temp = (JPtr*) out;
         output = *temp;
         j_val_destroy(out);
+        //delete temp;
     }
+    lexer_destroy_buffer();
     return retval;
 }
 

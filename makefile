@@ -25,7 +25,7 @@ tests: cpp_test
 c_test:
 
 cpp_test:cpp_test.o $(STATIC_LIB)
-	$(CXX) $(CXXFLAGS) -o $@ $< $(STATIC_LIB)  # $(C_OBJ) $(CXX_OBJ)
+	$(CXX) $(CXXFLAGS) -o $@ $< $(STATIC_LIB) 
 
 cpp_test.o:
 

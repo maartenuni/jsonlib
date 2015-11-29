@@ -10,6 +10,7 @@ extern "C"{
 
 void yyerror(j_val**, const char*);
 int yyparse(j_val** parse_result);
+void lexer_destroy_buffer();
 
 #ifdef __cplusplus
 }
@@ -141,10 +142,14 @@ number : TOK_NUM    {
 
 %%
 
+/*
 int parser_parse(j_val** value)
 {
-    return yyparse(value);
+    int ret = yyparse(value);
+    lexer_destroy_buffer();
+    return ret;
 }
+*/
 
 void yyerror(j_val** unused, const char* error) {
     (void) unused;

@@ -15,6 +15,7 @@ NO_STR_CHAR             [\\/"\b\f\n\r\t]
 #include "jrep.h"
 #undef   INSIDE_LEXER
 #include "parser.tab.h"
+
 %}
 
 %%
@@ -49,20 +50,25 @@ NO_STR_CHAR             [\\/"\b\f\n\r\t]
 
 %%
 
+YY_BUFFER_STATE our_state;
+
 void lexer_scan_string(const char* string)
 {
-    YY_BUFFER_STATE state = yy_scan_string(string);
-    //free(state);
+    our_state = yy_scan_string(string);
 }
 
 void lexer_scan_bytes(const char* bytes, int length)
 {
-    YY_BUFFER_STATE state = yy_scan_bytes(bytes, length);
-    //free(state);
+    our_state = yy_scan_bytes(bytes, length);
 }
 
 void lexer_scan_buffer(char* bytes, int length)
 {
-    YY_BUFFER_STATE state = yy_scan_buffer(bytes, length);
-    //free(state);
+    our_state = yy_scan_buffer(bytes, length);
+}
+
+void lexer_destroy_buffer()
+{
+    yy_delete_buffer(our_state);
+    our_state = NULL;
 }
