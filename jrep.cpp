@@ -7,6 +7,7 @@
 
 #include <sstream>
 #include <cstring>
+#include <memory>
 
 using std::ostringstream;
 using std::string;
@@ -18,6 +19,35 @@ using std::endl;
 extern "C" {
     int yyparse(j_val** parse_result);
     void lexer_destroy_buffer();
+}
+
+string jtype_to_string(jtype t)
+{
+    switch(t){
+        case JOBJECT:   return "JObject";
+        case JARRAY:    return "JArray";
+        case JSTRING:   return "JString";
+        case JNUMBER:   return "JNumber";
+        case JBOOL:     return "JBool";
+        case JNULL:     return "JNull";
+        default:        return ""; //Hmm Json extension to binary tree eeg.
+    }
+}
+
+JCastException::JCastException(jtype is, jtype to)
+    : my_to(to), my_is(is)
+{
+    my_msg = "Unable to cast \"" + jtype_to_string(is) + "\" to \"" +
+        jtype_to_string(to) + "\"";
+}
+
+JCastException::~JCastException() noexcept
+{
+}
+
+const char* JCastException::what() noexcept
+{
+    return my_msg.c_str();
 }
 
 JValue::JValue(jtype t)
@@ -39,6 +69,58 @@ void JValue::fix_depth(int depth)
     set_depth(depth);
 }
 
+JObject& JValue::get_oject() throw(JCastException)
+{
+    jtype t;
+    if ((t = get_type()) != JOBJECT)
+        throw JCastException(t, JOBJECT);
+    return dynamic_cast<JObject&>(*this);
+}
+
+JArray& JValue::get_array() throw(JCastException)
+{
+    jtype t;
+    JArrayPtr ret;
+    if ((t = get_type()) != JARRAY)
+        throw JCastException(t, JARRAY);
+    return dynamic_cast<JArray&>(*this);
+}
+
+JString& JValue::get_string() throw(JCastException)
+{
+    jtype t;
+    JStringPtr ret;
+    if ((t = get_type()) != JSTRING)
+        throw JCastException(t, JSTRING);
+    return dynamic_cast<JString&>(*this);
+}
+
+JNumber& JValue::get_number() throw(JCastException)
+{
+    jtype t;
+    if ((t = get_type()) != JNUMBER)
+        throw JCastException(t, JNUMBER);
+    
+    return dynamic_cast<JNumber&>(*this);
+}
+
+JBool& JValue::get_bool() throw(JCastException)
+{
+    jtype t;
+    JNumberPtr ret;
+    if ((t = get_type()) != JBOOL)
+        throw JCastException(t, JBOOL);
+    return dynamic_cast<JBool&>(*this);
+}
+
+JNull& JValue::get_null() throw (JCastException)
+{
+    jtype t;
+    if ((t = get_type()) != JNULL)
+        throw JCastException(t, JNULL);
+    return dynamic_cast<JNull&>(*this);
+}
+
 int JValue::get_depth() const
 {
     return my_depth;
@@ -50,7 +132,7 @@ jtype JValue::get_type() const
 }
 
 JObject::JObject() :
-    JValue(OBJECT)
+    JValue(JOBJECT)
 {
 }
 
@@ -112,7 +194,7 @@ const char* JObject::NoSuchKeyError::what()const throw()
 }
 
 JArray::JArray()
-    : JValue(ARRAY)
+    : JValue(JARRAY)
 {
 }
 
@@ -159,12 +241,12 @@ string JArray::representation() const
 }
 
 JString::JString()
-    : JValue(STRING) , my_value("")
+    : JValue(JSTRING) , my_value("")
 {
 }
 
 JString::JString(const string& value)
-    : JValue(STRING), my_value(value)
+    : JValue(JSTRING), my_value(value)
 {
 }
 
@@ -185,7 +267,7 @@ string JString::representation() const
 }
 
 JNumber::JNumber(double value)
-    : JValue(NUMBER), my_value(value)
+    : JValue(JNUMBER), my_value(value)
 {
 }
 
@@ -208,12 +290,12 @@ string JNumber::representation() const
 }
 
 JBool::JBool()
-    :JValue(BOOL), my_value(false)
+    :JValue(JBOOL), my_value(false)
 {
 }
 
 JBool::JBool(bool val)
-    :JValue(BOOL), my_value(val)
+    :JValue(JBOOL), my_value(val)
 {
 }
 
@@ -237,7 +319,7 @@ bool JBool::get_value()const
 }
 
 JNull::JNull()
-    :JValue(NULL_TYPE)
+    :JValue(JNULL)
 {
 }
 
@@ -278,27 +360,26 @@ int JParser::parse(JPtr& output)
 void j_val_destroy(j_val* val) {
     jtype t = j_val_get_type(val);
     switch(t) {
-        case STRING:
+        case JSTRING:
             j_string_destroy((j_string*) val);
             break;
-        case NUMBER:
+        case JNUMBER:
             j_number_destroy((j_number*) val);
             break;
-        case OBJECT:
+        case JOBJECT:
             j_object_destroy((j_object*) val);
             break;
-        case ARRAY:
+        case JARRAY:
             j_array_destroy((j_array*) val);
             break;
-        case BOOL:
+        case JBOOL:
             j_bool_destroy((j_bool*) val);
             break;
-        case NULL_TYPE:
+        case JNULL:
             j_null_destroy((j_null*) val);
             break;
     }
 }
-
 
 
 char* j_val_representation(j_val* val) {

@@ -2,7 +2,7 @@
 #ifndef JREP_H
 #define JREP_H
 
-typedef enum jtype {STRING, NUMBER, OBJECT, ARRAY, BOOL, NULL_TYPE}jtype;
+typedef enum jtype {JSTRING, JNUMBER, JOBJECT, JARRAY, JBOOL, JNULL}jtype;
 
 #ifdef __cplusplus
 
@@ -14,7 +14,35 @@ typedef enum jtype {STRING, NUMBER, OBJECT, ARRAY, BOOL, NULL_TYPE}jtype;
 #include <vector>
 
 class JValue;
+class JObject;
+class JArray;
+class JString;
+class JNumber;
+class JBool;
+class JNull;
+
 typedef std::shared_ptr<JValue> JPtr;
+typedef std::shared_ptr<JObject> JObjectPtr;
+typedef std::shared_ptr<JArray> JArrayPtr;
+typedef std::shared_ptr<JString> JStringPtr;
+typedef std::shared_ptr<JNumber> JNumberPtr;
+typedef std::shared_ptr<JBool> JBoolPtr;
+typedef std::shared_ptr<JNull> JNullPtr;
+
+class JCastException : public std::exception {
+
+    public:
+        JCastException(jtype is, jtype to);
+        ~JCastException()noexcept;
+        const char* what()noexcept;
+
+    private:
+    
+        jtype my_to;
+        jtype my_is;
+        std::string my_msg;
+};
+
 
 class JValue{
 
@@ -50,10 +78,17 @@ class JValue{
         void set_depth(int depth = 0);
 
         /**
-         * Recursively fix depth setting in this value all possible values below this one
-         * also will be fixed.
+         * Recursively fix depth setting in this value all possible values
+         * below this one also will be fixed.
          */
         virtual void fix_depth(int depth);
+
+        JObject&    get_oject() throw(JCastException);
+        JArray&     get_array() throw(JCastException);
+        JString&    get_string()throw(JCastException);
+        JBool&      get_bool()  throw(JCastException);
+        JNumber&    get_number()throw(JCastException);
+        JNull&      get_null()  throw(JCastException);
 
     protected:
 
@@ -115,7 +150,6 @@ class JObject : public JValue {
 
 };
 
-typedef std::shared_ptr<JObject> JObjectPtr;
 
 class JArray : public JValue {
 
@@ -164,7 +198,6 @@ class JArray : public JValue {
         std::vector<JPtr> my_values;
 };
 
-typedef std::shared_ptr<JArray> JArrayPtr;
 
 class JString : public JValue {
 
@@ -184,7 +217,6 @@ class JString : public JValue {
         std::string my_value;
 };
 
-typedef std::shared_ptr<JString> JStringPtr;
 
 class JNumber : public JValue {
 
@@ -203,7 +235,6 @@ class JNumber : public JValue {
         double my_value;
 };
 
-typedef std::shared_ptr<JNumber> JNumberPtr;
 
 class JBool : public JValue {
     
@@ -235,7 +266,6 @@ class JNull : public JValue {
 
 };
 
-typedef std::shared_ptr<JNull> JNullPtr;
 
 /**
  * \brief Parses jsons string buffers.
