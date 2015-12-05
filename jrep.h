@@ -83,7 +83,7 @@ class JValue{
          */
         virtual void fix_depth(int depth);
 
-        JObject&    get_oject() throw(JCastException);
+        JObject&    get_object()throw(JCastException);
         JArray&     get_array() throw(JCastException);
         JString&    get_string()throw(JCastException);
         JBool&      get_bool()  throw(JCastException);

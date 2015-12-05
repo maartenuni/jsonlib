@@ -69,7 +69,7 @@ void JValue::fix_depth(int depth)
     set_depth(depth);
 }
 
-JObject& JValue::get_oject() throw(JCastException)
+JObject& JValue::get_object() throw(JCastException)
 {
     jtype t;
     if ((t = get_type()) != JOBJECT)
