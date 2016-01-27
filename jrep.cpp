@@ -5,6 +5,8 @@
 #undef INSIDE_PARSER
 #undef INSIDE_LEXER 
 
+#include "jrep-config.h"
+
 #include <sstream>
 #include <cstring>
 #include <memory>
@@ -45,7 +47,7 @@ JCastException::~JCastException() noexcept
 {
 }
 
-const char* JCastException::what() noexcept
+const char* JCastException::what() const noexcept
 {
     return my_msg.c_str();
 }
@@ -357,6 +359,24 @@ int JParser::parse(JPtr& output)
     return retval;
 }
 
+/************ Implementation of the C API **********/
+
+const char* jrep_version() {
+    return JREP_VERSION_STRING;
+}
+
+unsigned jrep_major_version() {
+    return JREP_VERSION_MAJOR;
+}
+
+unsigned jrep_minot_version() {
+    return JREP_VERSION_MINOR;
+}
+
+unsigned jrep_micro_version() {
+    return JREP_VERSION_MICRO;
+}
+
 void j_val_destroy(j_val* val) {
     jtype t = j_val_get_type(val);
     switch(t) {
@@ -465,7 +485,7 @@ void j_val_fix_depth(j_val* val, int depth){
     (*ptr)->fix_depth(depth);
 }
 
-unsigned j_array_size(j_array* arr) {
+size_t j_array_size(j_array* arr) {
     JArrayPtr* ptr = (JArrayPtr*) arr;
     return (*ptr)->size();
 }
