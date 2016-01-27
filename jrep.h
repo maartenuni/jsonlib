@@ -34,7 +34,7 @@ class JCastException : public std::exception {
     public:
         JCastException(jtype is, jtype to);
         ~JCastException()noexcept;
-        const char* what()noexcept;
+        const char* what()const noexcept;
 
     private:
     
@@ -332,6 +332,11 @@ extern "C" {
     void lexer_scan_bytes(const char* bytes, int length);
     void lexer_scan_buffer(char* buffer, size_t length);
 #endif
+
+const char* jrep_version();
+unsigned jrep_major_version();
+unsigned jrep_minor_version();
+unsigned jrep_micro_version();
 
 typedef struct j_val j_val;
 char*   j_val_representation(j_val* value);
